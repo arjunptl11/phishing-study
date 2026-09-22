@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interface Design Evaluation Study</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #f5f5f5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    max-width: 580px;
+    width: 100%;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .logo-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.8rem;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .logo-text { font-size: 12px; color: #555; line-height: 1.5; }
+  .logo-text strong { color: #1B4332; font-size: 13px; }
+  h1 { font-size: 20px; color: #1B4332; margin-bottom: 10px; font-weight: 600; }
+  .subtitle { font-size: 14px; color: #555; margin-bottom: 1.5rem; line-height: 1.6; }
+  .form-scroll {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1.2rem 1.4rem;
+    font-size: 13px;
+    color: #333;
+    line-height: 1.75;
+    max-height: 320px;
+    overflow-y: auto;
+    margin-bottom: 1.3rem;
+  }
+  .form-scroll h2 { font-size: 13px; color: #1B4332; margin: 1rem 0 4px; font-weight: 700; }
+  .form-scroll h2:first-child { margin-top: 0; }
+  .form-scroll .meta { color: #555; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid #e0e0e0; }
+  .form-scroll ul { padding-left: 1.2rem; margin: 4px 0 8px; }
+  .form-scroll ul li { margin-bottom: 4px; }
+  label.question { display: block; font-size: 15px; font-weight: 500; color: #222; margin-bottom: 10px; }
+  .options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+  .option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px; color: #222;
+    background: white;
+    text-align: left; width: 100%;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .option:hover { border-color: #1B4332; background: #f0faf5; }
+  .option.selected { border-color: #1B4332; background: #f0faf5; }
+  .option input[type="radio"] { accent-color: #1B4332; width: 16px; height: 16px; flex-shrink: 0; }
+  .btn {
+    width: 100%; padding: 14px;
+    background: #1B4332; color: white;
+    border: none; border-radius: 8px;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn:hover { background: #2D6A4F; }
+  .btn:disabled { background: #aaa; cursor: not-allowed; }
+  .step { display: none; }
+  .step.active { display: block; }
+  .spinner-wrap { text-align: center; padding: 2.5rem 0; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #1B4332;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner-wrap p { font-size: 14px; color: #555; }
+  .exit-box {
+    background: #fff5f5; border: 1px solid #ffcccc;
+    border-radius: 8px; padding: 1.8rem; text-align: center;
+  }
+  .exit-box h2 { font-size: 17px; color: #333; margin-bottom: 8px; }
+  .exit-box p { font-size: 13px; color: #555; line-height: 1.6; }
+  .irb-note { margin-top: 1.2rem; font-size: 11px; color: #999; text-align: center; line-height: 1.5; }
+  .scroll-hint { font-size: 11px; color: #999; text-align: right; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="logo-bar">
+    <div class="logo-text">
+      <strong>SPEX Research Group</strong><br>
+      UNC Charlotte &nbsp;|&nbsp; NCSSM &nbsp;|&nbsp; IRB-27-0150-01
+    </div>
+  </div>
+
+  <!-- STEP 1: Age screener -->
+  <div class="step active" id="step-age">
+    <h1>Interface Design Evaluation Study</h1>
+    <p class="subtitle">Before we begin, we need to confirm your age to make sure you see the correct consent process.</p>
+    <label class="question">What is your age?</label>
+    <div class="options">
+      <label class="option"><input type="radio" name="age" value="under13"> Under 13</label>
+      <label class="option"><input type="radio" name="age" value="13to17"> 13 to 17</label>
+      <label class="option"><input type="radio" name="age" value="18plus"> 18 or older</label>
+    </div>
+    <button class="btn" id="btn-age" onclick="handleAge()" disabled>Continue</button>
+    <p class="irb-note">Principal Investigator: Dr. Cori Faklaris, cfaklari@charlotte.edu<br>Student Investigator: Arjun Patel, patel27a4@ncssm.edu</p>
+  </div>
+
+  <!-- STEP 2: Not eligible -->
+  <div class="step" id="step-ineligible">
+    <div class="exit-box">
+      <h2>Thank you for your interest</h2>
+      <p>This study is open to participants who are 13 years of age or older. You are not eligible to participate at this time.</p>
+      <p style="margin-top:10px;">If you have questions, please contact patel27a4@ncssm.edu.</p>
+    </div>
+  </div>
+
+  <!-- STEP 3: Parent permission -->
+  <div class="step" id="step-parent-consent">
+    <h1>Parent or Legal Guardian Permission</h1>
+    <p class="subtitle">Because the participant is between the ages of 13 and 17, a parent or legal guardian must read and agree to the following form before the participant may continue.</p>
+    <p class="scroll-hint">Scroll to read the full form</p>
+    <div class="form-scroll">
+      <p class="meta">
+        <strong>Parent or Legal Guardian Permission for Minor Participation in Research</strong><br>
+        University of North Carolina at Charlotte<br>
+        IRB Protocol Number: IRB-27-0150-01<br><br>
+        Title of the Project: Interface Design Evaluation Study<br>
+        Principal Investigator: Dr. Cori Faklaris, Assistant Professor, Department of Software and Information Systems, UNC Charlotte<br>
+        Student Investigator: Arjun Patel, NC School of Science and Mathematics, patel27a4@ncssm.edu<br>
+        Faculty Advisor: Dr. Cori Faklaris, cfaklari@charlotte.edu<br>
+        Funding Source: None
+      </p>
+
+      <h2>Important Information</h2>
+      <p>The purpose of this study is to evaluate how people interact with and respond to different website interface designs. Your child may participate if they are between the ages of 13 and 17 and a regular internet user. They will be shown a series of website screenshots and asked to rate their responses to each one. The survey takes approximately 10 minutes. There is no compensation for participating. Risks are minimal, similar to those in a typical school survey. Your child will not benefit directly, but the findings may contribute to improvements in how digital interfaces are designed.</p>
+
+      <h2>Why are we doing this study?</h2>
+      <p>We are conducting this study to better understand how people evaluate and respond to different designs of website interfaces. Understanding how young internet users respond to different interface designs is a valuable part of this research.</p>
+
+      <h2>Why is your child being asked to participate?</h2>
+      <p>Your child is being invited to participate because they are between the ages of 13 and 17 and a regular internet user. They were contacted through the personal or professional networks of the research team. Your permission and your child's assent are both required before they may participate.</p>
+
+      <h2>What will your child be asked to do?</h2>
+      <p>If you give permission and your child agrees, they will complete an online survey on Formbricks (app.formbricks.com). The survey includes:</p>
+      <ul>
+        <li>An age verification step.</li>
+        <li>This parent permission form, which must be confirmed before your child continues.</li>
+        <li>A minor assent form your child will read and agree to before continuing.</li>
+        <li>Twelve website screenshots. For each screenshot, your child will rate their reactions on a 5-point scale and indicate how confident they are.</li>
+        <li>A few exit questions about the screens they saw.</li>
+        <li>Demographic questions about age range, technology use, and internet experience.</li>
+        <li>A debriefing statement with additional information about the study.</li>
+      </ul>
+      <p>The survey takes approximately 10 minutes. Your child may stop at any time.</p>
+
+      <h2>Note About Study Procedures</h2>
+      <p>To ensure the accuracy of responses, some additional details about the study's focus will be shared with participants at the end of the survey in a debriefing statement. This is a standard and IRB-approved research practice.</p>
+
+      <h2>What are the risks?</h2>
+      <p>The risks are minimal and consistent with typical online surveys. Your child may feel mild frustration with some of the questions. The likelihood of any harm occurring is considered very unlikely.</p>
+
+      <h2>Are there benefits?</h2>
+      <p>There are no direct benefits to your child from participating. The information gathered may contribute to improvements in how digital interfaces are designed.</p>
+
+      <h2>How will privacy be protected?</h2>
+      <p>Your child's responses are anonymous. No names, phone numbers, or other directly identifying information are collected. If your child optionally provides an email address for a follow-up conversation, that address will be stored separately from all survey responses and deleted once follow-up contact is complete. Response data is stored in a secure Google Cloud repository accessible only to the research team.</p>
+
+      <h2>Is participation voluntary?</h2>
+      <p>Participation is entirely voluntary. You may refuse permission, and your child may decline or stop at any time, without penalty. If your child chooses to stop, they simply close the browser window.</p>
+
+      <h2>Questions?</h2>
+      <p>For questions about this study, contact Arjun Patel at patel27a4@ncssm.edu or Dr. Cori Faklaris at cfaklari@charlotte.edu. For questions about your child's rights as a research participant, contact the UNC Charlotte Office of Research Protections and Integrity at uncc-irb@charlotte.edu.</p>
+
+      <h2>Parent or Legal Guardian Permission</h2>
+      <p>By selecting "I give permission" below, you confirm that:</p>
+      <ul>
+        <li>You are the parent or legal guardian of the minor completing this survey.</li>
+        <li>You have read and understood the information in this form.</li>
+        <li>You give permission for your child to participate in this research study.</li>
+        <li>You understand that your child may withdraw at any time without penalty.</li>
+      </ul>
+    </div>
+
+    <label class="question">As the parent or legal guardian, do you give permission for your child to participate?</label>
+    <div class="options">
+      <label class="option"><input type="radio" name="parent" value="yes"> I give permission for my child to participate</label>
+      <label class="option"><input type="radio" name="parent" value="no"> I do not give permission</label>
+    </div>
+    <button class="btn" id="btn-parent" onclick="handleParent()" disabled>Continue</button>
+  </div>
+
+  <!-- STEP 4: Minor assent -->
+  <div class="step" id="step-minor-assent">
+    <h1>Assent to Participate</h1>
+    <p class="subtitle">Your parent or guardian has given permission. Now please read the following and let us know if you agree to participate.</p>
+    <p class="scroll-hint">Scroll to read the full form</p>
+    <div class="form-scroll">
+      <p class="meta">
+        <strong>Assent to Participate in a Research Study</strong><br>
+        For participants ages 13 to 17<br>
+        University of North Carolina at Charlotte<br>
+        IRB Protocol Number: IRB-27-0150-01<br><br>
+        Study Title: Interface Design Evaluation Study<br>
+        Researcher: Arjun Patel, NC School of Science and Mathematics<br>
+        Supervisor: Dr. Cori Faklaris, UNC Charlotte, cfaklari@charlotte.edu
+      </p>
+
+      <p>Hi! My name is Arjun Patel and I am a student researcher working with Dr. Cori Faklaris at UNC Charlotte. I am doing a study about how people respond to different website designs.</p>
+
+      <h2>What is this study about?</h2>
+      <p>I want to find out how people look at and react to different website screens. You will be shown some website screenshots and asked what you think about each one.</p>
+
+      <h2>What will you be asked to do?</h2>
+      <p>If you decide to participate, here is what will happen:</p>
+      <ul>
+        <li>You will look at 12 website screenshots.</li>
+        <li>For each screenshot, you will answer two questions about your reaction to it.</li>
+        <li>After the screenshots, you will answer a few questions about what you saw.</li>
+        <li>You will answer some basic questions about yourself like your age range and how often you use the internet.</li>
+        <li>At the end, I will share more information about what the study was really about.</li>
+      </ul>
+      <p>This should take about 10 minutes.</p>
+
+      <h2>Is this safe?</h2>
+      <p>Yes. You will only be looking at pictures of websites. Nothing bad will happen to your computer or your information. You might find some of the questions a little tricky or frustrating, but that is the only risk.</p>
+
+      <h2>Do you have to do this?</h2>
+      <p>No. Your parent or guardian said it was okay for you to be in this study, but you still get to decide for yourself. You do not have to say yes. And if you say yes now and change your mind later, you can stop at any time by closing the browser window. Nobody will be upset with you.</p>
+
+      <h2>Will anyone know what you said?</h2>
+      <p>No. We do not collect your name or any information that identifies you. Your answers are completely private.</p>
+
+      <h2>Questions?</h2>
+      <p>If you have any questions, you can contact me at patel27a4@ncssm.edu or Dr. Faklaris at cfaklari@charlotte.edu. You can ask questions any time, even after the study is done.</p>
+
+      <h2>Do You Agree to Participate?</h2>
+      <p>By selecting "Yes" below, you are saying:</p>
+      <ul>
+        <li>I have read this form (or someone read it to me).</li>
+        <li>I understand what the study is about.</li>
+        <li>I want to participate.</li>
+        <li>I know I can stop at any time.</li>
+      </ul>
+    </div>
+
+    <label class="question">Do you agree to participate?</label>
+    <div class="options">
+      <label class="option"><input type="radio" name="assent" value="yes"> Yes, I agree to participate</label>
+      <label class="option"><input type="radio" name="assent" value="no"> No, I do not want to participate</label>
+    </div>
+    <button class="btn" id="btn-assent" onclick="handleAssent()" disabled>Continue</button>
+  </div>
+
+  <!-- STEP 5: Adult consent -->
+  <div class="step" id="step-adult-consent">
+    <h1>Consent to Participate in a Research Study</h1>
+    <p class="subtitle">Please read the following carefully before continuing.</p>
+    <p class="scroll-hint">Scroll to read the full form</p>
+    <div class="form-scroll">
+      <p class="meta">
+        <strong>Consent to Participate in a Research Study</strong><br>
+        University of North Carolina at Charlotte<br>
+        IRB Protocol Number: IRB-27-0150-01<br><br>
+        Title of the Project: Interface Design Evaluation Study<br>
+        Principal Investigator: Dr. Cori Faklaris, Assistant Professor, Department of Software and Information Systems, UNC Charlotte<br>
+        Student Investigator: Arjun Patel, NC School of Science and Mathematics, patel27a4@ncssm.edu<br>
+        Faculty Advisor: Dr. Cori Faklaris, cfaklari@charlotte.edu<br>
+        Funding Source: None
+      </p>
+
+      <h2>Concise Summary</h2>
+      <p>The purpose of this research study is to evaluate how people interact with and respond to different website interface designs. Participation is voluntary and open to individuals who are 18 years of age or older. You will be shown a series of website screenshots and asked to rate your responses to each one. This will take approximately 10 minutes. There is no compensation for participating. Risks are minimal. Your responses are anonymous. If you are interested in learning more, please continue reading below.</p>
+
+      <h2>Why are we doing this study?</h2>
+      <p>We are conducting this study to better understand how people evaluate and respond to different designs of website interfaces. The findings will contribute to research on user experience and interface design.</p>
+
+      <h2>Why are you being asked to participate?</h2>
+      <p>You are being invited to participate because you are 18 years of age or older and a regular internet user. You were contacted through the personal or professional networks of the research team.</p>
+
+      <h2>What will you be asked to do?</h2>
+      <p>If you agree to participate, you will complete an online survey hosted on Formbricks (app.formbricks.com). The survey proceeds as follows:</p>
+      <ul>
+        <li>You will read this consent form and click to agree to participate.</li>
+        <li>You will be shown 12 website screenshots. For each screenshot, you will rate your reactions on a 5-point scale and indicate how confident you are in your response.</li>
+        <li>You will answer a few questions about the screens you saw.</li>
+        <li>You will answer demographic questions about your age range, technology use, and internet experience.</li>
+        <li>You will receive a debriefing statement with additional information about the study.</li>
+      </ul>
+      <p>The entire survey takes approximately 10 minutes to complete.</p>
+
+      <h2>Note About Study Procedures</h2>
+      <p>To ensure the accuracy of your responses, some additional details about the study's focus will be shared with you at the end of the survey in a debriefing statement. This is a standard and IRB-approved research practice.</p>
+
+      <h2>What are the risks and discomforts?</h2>
+      <p>The risks associated with participating in this study are minimal and consistent with those encountered in other online surveys. You may feel mild discomfort or frustration with some of the questions. The likelihood of any harm occurring is considered very unlikely.</p>
+
+      <h2>Are there any benefits to participating?</h2>
+      <p>There are no direct benefits to you from participating in this study. However, the information we learn may contribute to improvements in how websites and digital interfaces are designed.</p>
+
+      <h2>How will your privacy be protected?</h2>
+      <p>Your responses are anonymous. We do not collect your name, phone number, or any other directly identifying information as part of the survey. The only optional identifier collected is an email address, if you voluntarily indicate willingness to be contacted for a follow-up conversation. If provided, this email address will be stored in a separate file with no connection to your survey responses and will be deleted once follow-up contact is complete. Survey response data will be stored in a secure Google Cloud repository accessible only to the research team.</p>
+
+      <h2>Is participation voluntary?</h2>
+      <p>Participation in this study is entirely voluntary. You may choose not to participate or to stop at any time without penalty. If you choose to withdraw, you may simply close the browser window.</p>
+
+      <h2>What if you have questions?</h2>
+      <p>If you have questions about this study, please contact the Student Investigator, Arjun Patel, at patel27a4@ncssm.edu, or the Principal Investigator, Dr. Cori Faklaris, at cfaklari@charlotte.edu.</p>
+      <p>If you have questions about your rights as a research participant or concerns about how this study is being conducted, please contact the UNC Charlotte Office of Research Protections and Integrity (ORPI) at uncc-irb@charlotte.edu.</p>
+
+      <h2>Follow-Up Interview (Optional)</h2>
+      <p>After completing the survey, you will be asked whether you would be willing to participate in a short optional follow-up conversation lasting 15 to 20 minutes, conducted remotely. Participation in any follow-up contact is entirely optional and you may decline without consequence.</p>
+
+      <h2>Agreement to Participate</h2>
+      <p>By selecting "I agree" below, you confirm that:</p>
+      <ul>
+        <li>You are 18 years of age or older.</li>
+        <li>You have read and understood the information above.</li>
+        <li>You voluntarily agree to participate in this research study.</li>
+        <li>You understand that you may withdraw at any time without penalty.</li>
+      </ul>
+    </div>
+
+    <label class="question">Do you agree to participate?</label>
+    <div class="options">
+      <label class="option"><input type="radio" name="adult" value="yes"> I agree and continue</label>
+      <label class="option"><input type="radio" name="adult" value="no"> I do not agree and wish to exit</label>
+    </div>
+    <button class="btn" id="btn-adult" onclick="handleAdult()" disabled>Continue</button>
+  </div>
+
+  <!-- STEP 6: Declined -->
+  <div class="step" id="step-declined">
+    <div class="exit-box">
+      <h2>Thank you</h2>
+      <p>You have chosen not to participate. You may close this window at any time.</p>
+      <p style="margin-top:10px;">If you have questions, contact us at patel27a4@ncssm.edu.</p>
+    </div>
+  </div>
+
+  <!-- STEP 7: Redirecting -->
+  <div class="step" id="step-redirecting">
+    <div class="spinner-wrap">
+      <div class="spinner"></div>
+      <p>Preparing your study session...</p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Replace these with your actual Formbricks survey links
+var SURVEYS = {
+  A: "https://app.formbricks.com/s/YOUR_CONDITION_A_LINK",
+  B: "https://app.formbricks.com/s/YOUR_CONDITION_B_LINK",
+  C: "https://app.formbricks.com/s/YOUR_CONDITION_C_LINK",
+  D: "https://app.formbricks.com/s/YOUR_CONDITION_D_LINK"
+};
+
+document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+  radio.addEventListener("change", function() {
+    var btnMap = { age: "btn-age", parent: "btn-parent", assent: "btn-assent", adult: "btn-adult" };
+    var btn = document.getElementById(btnMap[this.name]);
+    if (btn) btn.disabled = false;
+    document.querySelectorAll('input[name="' + this.name + '"]').forEach(function(r) {
+      r.closest(".option").classList.remove("selected");
+    });
+    this.closest(".option").classList.add("selected");
+  });
+});
+
+function showStep(id) {
+  document.querySelectorAll(".step").forEach(function(s) { s.classList.remove("active"); });
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function handleAge() {
+  var val = document.querySelector('input[name="age"]:checked');
+  if (!val) return;
+  if (val.value === "under13") showStep("step-ineligible");
+  else if (val.value === "13to17") showStep("step-parent-consent");
+  else showStep("step-adult-consent");
+}
+
+function handleParent() {
+  var val = document.querySelector('input[name="parent"]:checked');
+  if (!val) return;
+  if (val.value === "no") showStep("step-declined");
+  else showStep("step-minor-assent");
+}
+
+function handleAssent() {
+  var val = document.querySelector('input[name="assent"]:checked');
+  if (!val) return;
+  if (val.value === "no") showStep("step-declined");
+  else redirect();
+}
+
+function handleAdult() {
+  var val = document.querySelector('input[name="adult"]:checked');
+  if (!val) return;
+  if (val.value === "no") showStep("step-declined");
+  else redirect();
+}
+
+function getAssignment() {
+  var keys = ["A","B","C","D"];
+  var counts = [0,0,0,0];
+  try { var s = localStorage.getItem("survey_counts"); if (s) counts = JSON.parse(s); } catch(e) {}
+  var min = Math.min.apply(null, counts);
+  var eligible = [];
+  for (var i = 0; i < counts.length; i++) { if (counts[i] === min) eligible.push(i); }
+  var chosen = eligible[Math.floor(Math.random() * eligible.length)];
+  counts[chosen]++;
+  try { localStorage.setItem("survey_counts", JSON.stringify(counts)); } catch(e) {}
+  return keys[chosen];
+}
+
+function redirect() {
+  showStep("step-redirecting");
+  setTimeout(function() {
+    window.location.href = SURVEYS[getAssignment()];
+  }, 1200);
+}
+</script>
+</body>
+</html>
